@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Users</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg bg-dark">
+    <div class="container-fluid">
+      <img src="logo.jpg" class="my-2 mx-2" style="width: 150px" />
+    </div>
+  </nav>
+  <div class="container mt-5 d-flex justify-content-center">
+    <div class="w-50 border rounded bg-dark shadow-lg">
+    <form class="m-5" action="/adduser" method="post">
+      <div class="mb-3">
+        <label for="name" class="form-label text-white">Name</label>
+        <input type="text" class="form-control " id="name" name="name" placeholder="Enter the name" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label text-white">Email</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label text-white">Password</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label text-white">Role</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="role" id="userRole" value="user" checked>
+          <label class="form-check-label text-white" for="userRole">
+            User
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="role" id="adminRole" value="admin">
+          <label class="form-check-label text-white" for="adminRole">
+            Admin
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-warning">Add user</button>
+      <div class="mb-3 text-danger">
+        <h6><%- exists %></h6>
+    </div>
+    </form>
+</div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

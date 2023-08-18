@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Blog</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg bg-dark">
+    <div class="container-fluid">
+      <img src="logo.jpg" class="my-2 mx-2" style="width: 150px" />
+    </div>
+    
+  </nav>
+  <div class="container mt-5 d-flex justify-content-center">
+    <div class="w-50 border rounded bg-dark shadow-lg">
+    <form class="m-5" action="/addblog" method="post">
+      <div class="mb-3">
+        <label for="title" class="form-label text-white">Title</label>
+        <input type="text" class="form-control" name="title" placeholder="Enter title" required>
+      </div>
+      <div class="mb-3">
+        <label for="imgurl" class="form-label text-white">Image URL</label>
+        <input type="text" class="form-control" name="imgurl" placeholder="Enter Image URL" required>
+      </div>
+      <div class="mb-3">
+        <label for="catg" class="form-label text-white">Choose a Category:</label>
+        <select name="catg" class="form-control">
+          <option value="Technology">Technology</option>
+          <option value="Lifestyle">Lifestyle</option>
+          <option value="Nature">Nature</option>
+          <option value="Wildlife">Wildlife</option>
+          <option value="Sports">Sports</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="des" class="form-label text-white">Description</label>
+        <textarea class="form-control" name="des" placeholder="Enter Description" rows="4" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-warning">Add Blog</button>
+    </form>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

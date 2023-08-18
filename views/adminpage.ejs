@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Users</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body class="bg-light ">
+  <nav class="navbar navbar-expand-lg bg-dark">
+    <div class="container-fluid">
+      <img src="logo.jpg" class="my-2 mx-2" style="width: 150px" />
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="#">Edit Users</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/editblog">Edit Blogs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/addblog">Add New Blog</a>
+          </li>
+        </ul>
+        <div >
+          <span class="text-warning mx-2 h5">Hi, <%- name %></span>
+          <span class="text-white h4 mx-2">|</span>
+          <a href="/logout" class="text-info h5"> LOGOUT</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <div>
+      <div class="h2 my-3">
+        Normal users
+      </div>
+      <table id="usertable" class="table table-hover table-sm">
+        <thead class="thead-dark">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <% for(var i=0; i<userdata.length; i++) {%>
+          <tr>
+            <form method="post" action="/deleteuser">
+              <input type="hidden" name="id" value=<%- userdata[i].id %>>
+              <input type="hidden" name="role" value="user">
+              <td><%- userdata[i].id %></td>
+              <td><%- userdata[i].name %></td>
+              <td><%- userdata[i].email %></td>
+              <td><%- userdata[i].password %></td>
+              <td>
+                <button type="submit" class="btn btn-danger btn-sm mx-2"><i class="fa fa-trash-o"></i></button>
+              </td>
+            </form>
+          </tr>
+          <% } %>
+      </table>
+    </div>
+    <hr class="my-4" style="height:1px;border:none;color:#000000;background-color:#000000;">
+    <div class="my-4">
+      <div class="h2 m-3">
+        Admins
+      </div>
+      <table id="admintable" class="table table-hover table-sm">
+        <thead class="thead-dark">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <% for(var i=0; i<admindata.length; i++) {%>
+          <tr>
+            <form method="post" action="/deleteuser">
+              <input type="hidden" name="role" value="admin">
+              <input type="hidden" name="id" value=<%- admindata[i].id %>>
+              <td><%- admindata[i].id %></td>
+              <td><%- admindata[i].name %></td>
+              <td><%- admindata[i].email %></td>
+              <td><%- admindata[i].password %></td>
+              <td>
+                <button type="submit" class="btn btn-danger btn-sm mx-2"><i class="fa fa-trash-o"></i></button>
+              </td>
+              </td>
+            </form>
+          </tr>
+          <% } %>
+      </table>
+      <form action='/adduser'>
+        <button class="btn btn-sm btn-success my-3">Add New User</button>
+      </form>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+  <script>
+    new DataTable('#usertable');
+    new DataTable('#admintable');
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

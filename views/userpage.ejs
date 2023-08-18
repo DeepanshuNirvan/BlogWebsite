@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Bogs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg bg-dark">
+    <div class="container-fluid">
+      <img src="logo.jpg" class="my-2 mx-2" style="width: 150px" />
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="#">Edit Blogs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/addblog">Add New Blog</a>
+          </li>
+        </ul>
+        <div >
+          <span class="text-warning mx-2 h5">Hi, <%- name %></span>
+          <span class="text-white h4 mx-2">|</span>
+          <a href="/logout" class="text-info h5 text-decoration-none mx-2"> LOGOUT</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container my-5">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <% for(var i=0; i<data.length; i++) {%>
+        <div class="col">
+          <div class="card shadow h-100">
+            <img src=<%- data[i].imgurl %> width="100px" height="200px" class="card-img-top" alt="...">
+            <form method="post">
+              <div class="card-body">
+                <h5 class="card-title"><input type="text" class="form-control" name="imgurl" value=<%- data[i].imgurl %>
+                  required></h5>
+                <h5 class="card-title"><textarea rows="1" class="form-control" cols="48" name="title"
+                  required><%- data[i].title %></textarea></h5>
+                <p class="card-text"><textarea rows="4" class="form-control" cols="48" name="des"
+                    required><%- data[i].des %></textarea></p>
+                <input type="hidden" name="id" value=<%- data[i].bid %>>
+              </div>
+              <div class="d-flex">
+                <button formaction="/editblog" class="btn btn-success btn-sm mx-2 my-2">Save</button>
+                <button formaction="/deleteblog" class="btn btn-danger btn-sm mx-2 my-2">Delete</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <% } %>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
