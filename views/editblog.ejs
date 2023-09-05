@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Edit Bogs</title>
+  <link rel="icon" type="image/x-icon" href="favicon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
 </head>
@@ -32,7 +33,7 @@
             <a class="nav-link text-white" href="/addblog">Add New Blog</a>
           </li>
         </ul>
-        <div >
+        <div>
           <span class="text-warning mx-2 h5">Hi, <%- name %></span>
           <span class="text-white h4 mx-2">|</span>
           <a href="/logout" class="text-info h5 text-decoration-none mx-2"> LOGOUT</a>
@@ -45,13 +46,12 @@
       <% for(var i=0; i<data.length; i++) {%>
         <div class="col">
           <div class="card shadow h-100">
-            <img src=<%- data[i].imgurl %> width="100px" height="200px" class="card-img-top" alt="...">
-            <form method="post">
+            <img src=<%- data[i].imgurl %> height="300px" class="card-img-top" alt="Not Found">
+            <form method="post" enctype="multipart/form-data">
               <div class="card-body">
-                <h5 class="card-title"><input type="text" class="form-control" name="imgurl" value=<%- data[i].imgurl %>
-                  required></h5>
+                <input type="file" class="form-control imgfield my-2" name="imgurl" accept=".jpg, .jpeg, .png" >
                 <h5 class="card-title"><textarea rows="1" class="form-control" cols="48" name="title"
-                  required><%- data[i].title %></textarea></h5>
+                    required><%- data[i].title %></textarea></h5>
                 <p class="card-text"><textarea rows="4" class="form-control" cols="48" name="des"
                     required><%- data[i].des %></textarea></p>
                 <input type="hidden" name="id" value=<%- data[i].bid %>>
@@ -66,6 +66,26 @@
         <% } %>
     </div>
   </div>
+  <script>
+    var uploadField = document.getElementsByClassName("imgfield");
+    for( var i=0;i<uploadField.length;i++){
+      element=uploadField[i];
+      element.onchange = function () {
+        if (this.files[0].size > 3 * 1024 * 1024) {
+          alert("File is too big!");
+          this.value = "";
+        };
+        var filePath = element.value;
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+          alert('Invalid file type');
+          this.value = "";
+        }
+      };
+    }
+
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
     crossorigin="anonymous"></script>

@@ -10,12 +10,13 @@
       integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
       crossorigin="anonymous"
     />
+    <link rel="icon" type="image/x-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;500&family=Roboto+Slab:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body class="bg-light" style="font-family:'Roboto Slab', serif;" >
-    <nav class="navbar navbar-expand-lg bg-dark">
+    <nav class="navbar fixed-top shadow navbar-expand-lg bg-dark">
       <div class="container-fluid">
         <img src="logo.jpg" class="my-2 mx-2" style="width: 150px" />
         <button
@@ -47,7 +48,7 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                Dropdown
+                Category
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="/category?catg=Technology">Technology</a></li>
@@ -59,9 +60,9 @@
             </li>
         </ul>
         <form class="d-flex" role="search">
-            <a class="nav-link text-info mx-3 my-2"  href="/login">PANEL</a>
+            <a class="nav-link text-info mx-3 my-2"  href="/login">CONTROL</a>
             <input
-              class="form-control me-2"
+              class="form-control me-2" 
               type="search"
               placeholder="Search"
               aria-label="Search"
@@ -71,19 +72,19 @@
             </button>
           </form>
         </div>
-      </div>
+       </div>
     </nav>
-    <div class="my-4 w-100 d-flex justify-content-center">
+    <div class="w-100 d-flex justify-content-center" style="margin-top: 80px;">
         <h1>
             Welcome To The Blogs &#128515;
         </h1>
     </div>
-    <div class="container my-5">
+    <div class="container my-4">
         <div class="row row-cols-1 row-cols-md-3 g-4">
-          <% for(var i=0; i<data.length; i++) {%>
+          <% for(var i=0; i<data.length; i++){ %>
             <div class="col">
               <div class="card shadow h-100">
-                <img src=<%- data[i].imgurl %> width="100px" height="200px" class="card-img-top" alt="...">
+                <img src=<%- data[i].imgurl %> style="object-fit: cover;" height="300px" class=" card-img-top" alt="Wrong Path">
                 <div class="card-body">
                   <h5 class="card-title"><%- data[i].title %></h5>
                   <p class="card-text"><%- data[i].des %></p>

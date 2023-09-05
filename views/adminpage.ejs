@@ -99,7 +99,9 @@
               <td><%- admindata[i].email %></td>
               <td><%- admindata[i].password %></td>
               <td>
+                <% if(admindata[i].id!=1) { %>
                 <button type="submit" class="btn btn-danger btn-sm mx-2"><i class="fa fa-trash-o"></i></button>
+                <% } %>
               </td>
               </td>
             </form>

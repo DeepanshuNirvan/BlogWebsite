@@ -12,10 +12,11 @@
     />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-icon" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;500&family=Roboto+Slab:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body class="bg-light" style="font-family:'Roboto Slab', serif;" >
-    <nav class="navbar navbar-expand-lg bg-dark">
+    <nav class="navbar fixed-top shadow navbar-expand-lg bg-dark">
       <div class="container-fluid">
         <img src="logo.jpg" class="my-2 mx-2" style="width: 150px" />
         <button
@@ -47,7 +48,7 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                Dropdown
+              Category
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="/category?catg=Technology">Technology</a></li>
@@ -73,7 +74,7 @@
         </div>
       </div>
     </nav>
-    <div class="my-4 w-100 d-flex justify-content-center">
+    <div class="w-100 d-flex justify-content-center" style="margin-top: 80px;">
         <h1>
             Welcome To The Blogs &#128515;
         </h1>
@@ -83,7 +84,7 @@
           <% for(var i=0; i<data.length; i++) {%>
             <div class="col">
               <div class="card shadow h-100">
-                <img src=<%- data[i].imgurl %> width="100px" height="200px" class="card-img-top" alt="...">
+                <img src=<%- data[i].imgurl %> width="100px" height="300px" class="card-img-top" alt="...">
                 <div class="card-body">
                   <h5 class="card-title"><%- data[i].title %></h5>
                   <p class="card-text"><%- data[i].des %></p>

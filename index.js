@@ -1,10 +1,17 @@
-const express=require('express');
-const con=require("./config/db.js");
-var cookieParser=require('cookie-parser');
-var session=require('express-session');
-const app=express();
-const port=3000;
+const express = require('express');
+const Joi = require('joi');
+var cookieParser = require('cookie-parser');
+const multer  = require('multer');
+var session = require('express-session');
+const app = express();
+const port = 3000;
 app.set('view engine', 'ejs');
+const Admin = require('./models/admin.js');
+const User = require('./models/user.js');
+const Blog = require('./models/blogs.js');
+var validateLogin = require('./validate/loginVal.js');
+var validateUser = require('./validate/userVal.js');
+const path = require('path');
 
 app.use(express.urlencoded({
     extended: true
@@ -16,14 +23,14 @@ app.use(cookieParser());
 
 app.use(
     session({
-        key:'user_sid',
-        secret:'asecretkey',
-        resave:false,
-        saveUninitialized:false,
-        cookie:{
-            expires:86400000
+        key: 'user_sid',
+        secret: 'asecretkey',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            expires: 86400000
         }
-    })      
+    })
 )
 
 app.use(function (req, res, next) {
@@ -33,194 +40,302 @@ app.use(function (req, res, next) {
     next()
 });
 
-var sessionCheck=(req,res,next)=>{
-    if(req.session.loggedin){
+var sessionCheck = (req, res, next) => {
+    if (req.session.loggedin) {
         res.redirect(`/${req.session.role}page`);
     }
     else next();
 }
 
-app.get('/',(req,res)=>{
-    let sql = 'SELECT * FROM blogs';
-    con.query(sql,(err, result)=>{
-        if (err) console.log(err);
-        else res.render('index',{data:result});
-    });
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      return cb(null, './public/uploads')
+    },
+    filename: function (req, file, cb) {
+      return cb(null,`${Date.now()}-${file.originalname}`);
+    }
+  })
+  
+const upload = multer({
+    storage:storage,
+    fileFilter:(req,file,cb)=>{
+        if(file.mimetype=="image/png" || file.mimetype=="image/jpg" || file.mimetype=="image/jpeg") cb(null,true);
+        else{
+            cb(null,false);
+            return cb('ONLY JPEG, JPG, PNG ARE ALLOWED');
+        }
+    },
+    limits:{fileSize:3*1024*1024}
+    })
+
+app.get('/', async (req, res) => {
+    try {
+        let result = await Blog.findAll();
+        res.render('index', { data: result });
+    } catch (err) {
+        console.log(err);
+    }
 })
 
-app.get('/adminpage',(req,res)=>{
-    if(req.session.loggedin && req.session.role=='admin'){
-        let sql = 'SELECT * FROM user';
-        let sql2= 'SELECT * FROM admin';
-        con.query(sql,(err, result)=>{
-            if (err) console.log(err);
-            else {
-                con.query(sql2,(err, result2)=>{
-                    if (err) console.log(err);
-                    else res.render('adminpage',{admindata:result2,userdata:result,name:req.session.name});
-                });
-            }
-        });
+app.get('/adminpage', async (req, res) => {
+    if (req.session.loggedin && req.session.role == 'admin') {
+        try {
+            let result = await User.findAll();
+            let result2 = await Admin.findAll();
+            res.render('adminpage', { admindata: result2, userdata: result, name: req.session.name });
+        } catch (err) {
+            console.log(err);
+        }
     }
     else res.redirect('/login');
 })
 
-app.get('/login',sessionCheck,(req,res)=>{
-    res.render('login',{succ:""});
+app.get('/login', sessionCheck, (req, res) => {
+    res.render('login', { succ: "" });
 })
 
-app.post('/login',(req, res) => {
-    let email = req.body.email;
-    let password = req.body.password;
-    let role=req.body.role;
-    let sql = `SELECT name FROM ${role} WHERE email = ? AND password = ?`;
-    con.query(sql, [email,password],(err, result)=>{
-        if (err) console.log(err);
-        if(result.length){
-            req.session.loggedin=true;
-            req.session.name=result[0].name;
-            req.session.role=role;
-            if(role=='admin'){
-                return res.redirect('/adminpage');
-            }
-            else{
-                return res.redirect('/userpage');        
-            }
-        }
-        else{
-            return res.render('login',{succ:'Please Enter Correct Credentials!'});
-        }
-      });
-  });
+app.post('/login', async (req, res) => {
+    let validationResult = validateLogin(req.body);
+    if (validationResult.error) {
+        return res.status(400).send(validationResult.error.message);
+    }
+    const { email, password} = req.body;
 
-app.get('/adduser',(req,res)=>{
-    if(req.session.loggedin){
-        res.render('useradd',{exists:""});
+    try {
+        let user = await Admin.findOne({
+            where: {
+                email: email,
+                password: password,
+            },
+            attributes: ['name'],
+        });
+
+        if (user) {
+            req.session.loggedin = true;
+            req.session.name = user.name;
+            req.session.role = "admin";
+            return res.redirect('/adminpage');
+        }
+
+        else {
+            let user = await User.findOne({
+                where: {
+                    email: email,
+                    password: password,
+                },
+                attributes: ['name'],
+            });
+            if (user) {
+                req.session.loggedin = true;
+                req.session.name = user.name;
+                req.session.role = "user";
+                return res.redirect('/userpage');
+            }
+            else return res.render('login', { succ: 'Please Enter Correct Credentials!' });
+        }
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+
+
+app.get('/adduser', (req, res) => {
+    if (req.session.loggedin) {
+        res.render('useradd', { exists: "" });
     }
     else res.redirect('/login');
 
 });
-app.post('/adduser',(req,res)=>{
-    let email = req.body.email;
-    let password = req.body.password;
-    let name=req.body.name;
-    let role=req.body.role;
-    let sql = `SELECT name FROM ${role} WHERE email = ?`;
-    con.query(sql, [email],(err, result)=>{
-        if (err) console.log(err);
-        if(result.length)res.render('useradd',{exists:"User already exists with this email id in this role"});        
-        else{
-            let q=`Insert Into ${role}(name,email,password) Values (?,?,?)`;
-            con.query(q,[name,email,password],(er)=>{
-                if (er) console.log(er);
-                else res.redirect('/adminpage');
-            })
-        }
-      });
-})
-app.get('/editblog',(req,res)=>{
-    if(req.session.loggedin){
-        let sql = 'SELECT * FROM blogs';
-        con.query(sql,(err, result)=>{
-            if (err) console.log(err);
-            else res.render('editblog',{data:result,name:req.session.name});
-        });
+
+
+
+app.post('/adduser', async (req, res) => {
+    let validationResult = validateUser(req.body);
+    if (validationResult.error) {
+        return res.status(400).send(validationResult.error.message);
     }
-    else res.redirect('/login');
+    const { email, password, name, role } = req.body;
+    try {
+        let UserModel;
+        if (role === 'user') {
+            UserModel = User;
+        } else UserModel = Admin;
+
+        const existingUser = await UserModel.findOne({
+            where: {
+                email: email,
+            },
+            attributes: ['name'],
+        });
+
+        if (existingUser) {
+            return res.render('useradd', {
+                exists: 'User already exists with this email id in this role',
+            });
+        } else {
+            await UserModel.create({
+                name: name,
+                email: email,
+                password: password,
+            });
+            return res.redirect('/adminpage');
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+    }
 });
 
-app.post('/editblog',(req,res)=>{
-    let t=req.body.title;
-    let d=req.body.des;
-    let img=req.body.imgurl;
-    let b=req.body.id;
-    console.log(req.body);
-    let sql = 'UPDATE blogs SET title= ? , des= ? , imgurl= ? WHERE bid= ?;';
-    con.query(sql,[t,d,img,b],(err,result)=>{
-        if (err) console.log(err);
-        else{   
-            res.redirect('/editblog');
-        }
-    });
-})
-app.post('/deleteblog',(req,res)=>{
-    let b=req.body.id;
-    let sql = 'DELETE FROM blogs WHERE bid= ?;';
-    con.query(sql,[b],(err)=>{
-        if (err) console.log(err);
-        else{   
-            res.redirect('/editblog');
-        }
-    });
-})
 
-app.get('/addblog',(req,res)=>{
-    if(req.session.loggedin){
+
+app.get('/editblog', async (req, res) => {
+    if (req.session.loggedin) {
+        try {
+            const blogs = await Blog.findAll();
+            res.render('editblog', { data: blogs, name: req.session.name });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send('Internal Server Error');
+        }
+    } else {
+        res.redirect('/login');
+    }
+});
+
+app.post('/editblog',upload.single("imgurl"), async (req, res) => {
+    const { title, des, id } = req.body;
+    console.log(req.body.id);
+    let iurl;
+    if(req.file)iurl=`uploads\\${req.file.filename}`;
+
+    try {
+        const blog = await Blog.findByPk(id);
+        if (blog) {
+            blog.title = title;
+            blog.des = des;
+            if(req.file)blog.imgurl = iurl;
+            await blog.save();
+            return res.redirect('/editblog');
+        } else {
+            console.log(`Blog with id ${id} not found.`);
+            return res.status(404).send('Blog not found');
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
+app.post('/deleteblog',upload.single(), async (req, res) => {
+    const id = req.body.id;
+    try {
+        const blog = await Blog.findByPk(id);
+        if (blog) {
+            await blog.destroy();
+            return res.redirect('/editblog');
+        } else {
+            console.log(`Blog with id ${id} not found.`);
+            return res.status(404).send('Blog not found');
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+
+app.get('/addblog', (req, res) => {
+    if (req.session.loggedin) {
         res.render('addblog');
     }
     else res.redirect('/login');
 })
-app.post('/addblog',(req,res)=>{
-    let t=req.body.title;
-    let d=req.body.des;
-    let img=req.body.imgurl;
-    let catg=req.body.catg;
-    let q='Insert Into blogs(title,des,imgurl,category) Values (?,?,?,?)';
-    con.query(q,[t,d,img,catg],(er)=>{
-        if (er) console.log(er);
-        else res.redirect('/editblog');
-    })
-})
 
-app.get('/userpage',(req,res)=>{
-    if(req.session.loggedin && req.session.role=='user'){
-        let sql = 'SELECT * FROM blogs';
-        con.query(sql,(err, result)=>{
-            if (err) console.log(err);
-            else res.render('userpage',{data:result,name:req.session.name});
+
+app.post('/addblog', upload.single("imgurl"),async (req, res) => {
+    const { title, des, catg } = req.body;
+    let iurl=`uploads\\${req.file.filename}`;
+    try {
+        await Blog.create({
+            title: title,
+            des: des,
+            imgurl:iurl,
+            category: catg,
         });
+        return res.redirect('/editblog');
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
     }
-    else res.redirect('/login');
-})
+});
 
-app.post('/deleteuser',(req,res)=>{
-    let id=req.body.id;
-    let role=req.body.role;
-    let sql = `DELETE FROM ${role} WHERE id= ?;`;
-    con.query(sql,[id],(err)=>{
-        if (err) console.log(err);
-        else{   
-            res.redirect('/adminpage');
+
+app.get('/userpage', async (req, res) => {
+    if (req.session.loggedin && req.session.role === 'user') {
+        try {
+            const blogs = await Blog.findAll();
+            res.render('userpage', { data: blogs, name: req.session.name });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send('Internal Server Error');
         }
-    });
-})
+    } else {
+        res.redirect('/login');
+    }
+});
 
-app.get('/logout',(req,res)=>{
+app.post('/deleteuser', async (req, res) => {
+    const { id, role } = req.body;
+
+    try {
+        let UserModel;
+        if (role === 'user') {
+            UserModel = User;
+        }
+        else UserModel = Admin;
+
+        const user = await UserModel.findByPk(id);
+        if (user) {
+            await user.destroy();
+            return res.redirect('/adminpage');
+        } else {
+            console.log(`User with id ${id} not found.`);
+            return res.status(404).send('User not found');
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+
+app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 })
 
-app.get('/category',(req,res)=>{
-    let catg=req.query.catg;
-    let sql = 'SELECT * FROM blogs where category=?';
-    con.query(sql,[catg],(err, result)=>{
-        if (err) console.log(err);
-        else res.render('category',{data:result});
-    });
-    
-})
 
-app.post('/upgrade',(req,res)=>{
-    let id=req.body.id;
-    let role=req.body.role;
-    let sql = `DELETE FROM ${role} WHERE id= ?;`;
-    con.query(sql,[id],(err)=>{
-        if (err) console.log(err);
-        else{   
-            res.redirect('/adminpage');
-        }
-    });
-})
-app.listen(port,()=>{
+app.get('/category', async (req, res) => {
+    const catg = req.query.catg;
+
+    try {
+        const blogs = await Blog.findAll({
+            where: {
+                category: catg,
+            },
+        });
+        res.render('category', { data: blogs });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+
+app.listen(port, () => {
     console.log("Listening");
 })
